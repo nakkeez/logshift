@@ -2,118 +2,119 @@
 {
     internal class HourTracker
     {
-        private readonly List<WorkEntry> _workEntries = [];
-
-        public List<User> Users;
-        public List<Project> Projects;
+        private readonly LogShiftContext _db;
 
         public HourTracker()
         {
-            Users = [];
-            Projects = [];
+            _db = new LogShiftContext();
         }
 
-        public bool AddUser(User user)
+        public bool AddUser(string username)
         {
-            if (!CheckIfUserExists(user.Username))
+            try
             {
-                Users.Add(user);
+                _db.Add(new User(username));
+                _db.SaveChanges();
                 return true;
             }
-            else
+            catch
             {
                 return false;
             }
         }
 
-        public bool CheckIfUserExists(string username)
+        public User? GetUser(string username)
         {
-            foreach (User user in Users)
-            {
-                if (user.Username == username)
-                {
-                    return true;
-                }
-            }
-            return false;
+            User? user = _db.Users
+                    .Where(u => u.Username == username)
+                    .FirstOrDefault();
+            return user;
         }
 
-        public User GetUser(string username)
+        public User[] GetUsers()
         {
-            return Users.Find(x => username == x.Username);
+            return [.. _db.Users];
         }
 
-        public bool AddProject(Project project)
+        public bool AddProject(string projectId, string projectName)
         {
-            if (!CheckIfProjectExists(project.ProjectId))
+            try
             {
-                Projects.Add(project);
+                _db.Add(new Project(projectId, projectName));
+                _db.SaveChanges();
                 return true;
             }
-            else
+            catch
             {
                 return false;
             }
         }
 
-        public bool CheckIfProjectExists(string projectId)
+        public Project? GetProject(string projectId)
         {
-            foreach (Project project in Projects)
+            Project? project = _db.Projects
+                    .Where(p => p.ProjectId == projectId)
+                    .FirstOrDefault();
+            return project;
+        }
+
+        public Project[] GetProjects()
+        {
+            return [.. _db.Projects];
+        }
+
+        public bool AddWorkEntry(User user, DateTime date, Project project, double hoursWorked, string description)
+        {
+            try
             {
-                if (project.ProjectId == projectId)
-                {
-                    return true;
-                }
+                _db.Add(new WorkEntry() { User=user, Date=date, Project=project, HoursWorked=hoursWorked, Description=description});
+                _db.SaveChanges();
+                return true;
             }
-            return false;
+            catch
+            {
+                return false;
+            }
         }
 
-        public Project GetProject(string projectId)
+        public double GetTotalHoursByUser(User user)
         {
-            return Projects.Find(x => projectId == x.ProjectId);
-        }
-
-        public void AddWorkEntry(User user, DateTime date, Project project, double hoursWorked, string description)
-        {
-            _workEntries.Add(new WorkEntry(user, date, project, hoursWorked, description));
-        }
-
-        public double GetTotalHoursByEmployee(User user)
-        {
+            var workEntries = from e in _db.WorkEntries
+                              where e.User == user
+                              select e;
 
             double totalHours = 0;
-            foreach (WorkEntry entry in _workEntries)
+            foreach (WorkEntry entry in workEntries)
             {
-                if (entry.User == user)
-                {
-                    totalHours += entry.HoursWorked;
-                }
+                totalHours += entry.HoursWorked;
             }
             return totalHours;
         }
 
         public double GetTotalHoursByProject(Project project)
         {
+            var workEntries = from e in _db.WorkEntries
+                              where e.Project == project
+                              select e;
+
             double totalHours = 0;
-            foreach (WorkEntry entry in _workEntries)
+            foreach (WorkEntry entry in workEntries)
             {
-                if (entry.Project == project)
-                {
                     totalHours += entry.HoursWorked;
-                }
             }
             return totalHours;
         }
 
         public double GetTotalHoursByWeek(DateTime startDate, DateTime endDate)
         {
+            var workEntries = from e in _db.WorkEntries
+                              where e.Date >= startDate && e.Date <= endDate
+                              select e;
+
             double totalHours = 0;
-            foreach (WorkEntry entry in _workEntries)
+            foreach (WorkEntry entry in workEntries)
             {
-                if (entry.Date >= startDate && entry.Date <= endDate)
-                {
-                    totalHours += entry.HoursWorked;
-                }
+                totalHours += entry.HoursWorked;
             }
             return totalHours;
         }

@@ -1,11 +1,12 @@
 ﻿namespace LogShift
 {
-    internal class WorkEntry(User user, DateTime date, Project project, double hoursWorked, string description)
+    internal class WorkEntry
     {
-        public User User { get; set; } = user;
-        public DateTime Date { get; set; } = date;
-        public Project Project { get; set; } = project;
-        public double HoursWorked { get; set; } = hoursWorked;
-        public string Description { get; set; } = description;
+        public int Id { get; set; }
+        public required User User { get; set; }
+        public required DateTime Date { get; set; }
+        public required Project Project { get; set; }
+        public required double HoursWorked { get; set; }
+        public required string Description { get; set; }
     }
 }

@@ -6,13 +6,9 @@ using System.Threading.Tasks;
 
 namespace LogShift
 {
-    internal class User
+    internal class User(string username)
     {
-        public string Username { get; set; }
-
-        public User(string username)
-        {
-            Username = username;
-        }
+        public int Id { get; set; }
+        public string Username { get; set; } = username;
     }
 }

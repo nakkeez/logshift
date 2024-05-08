@@ -27,24 +27,22 @@
         static bool CreateNewWorkEntry(HourTracker tracker)
         {
             string username = AskInput("Enter username: ");
-            if (!tracker.CheckIfUserExists(username))
+            User? selectedUser = tracker.GetUser(username);
+            if (selectedUser == null)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 PrintLine("User not found");
                 return false;
             }
 
-            User selectedUser = tracker.GetUser(username);
-
             string id = AskInput("Enter project id: ");
-            if (!tracker.CheckIfProjectExists(id))
+            Project? selectedProject = tracker.GetProject(id);
+            if (selectedProject == null)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 PrintLine("Project not found");
                 return false;
             }
-
-            Project selectedProject = tracker.GetProject(id);
 
             Print("Enter date (YYYY-MM-DD): ");
             if (!DateTime.TryParse(Console.ReadLine(), out DateTime date))
@@ -72,11 +70,10 @@
         {
             string username = AskInput("Give username: ");
 
-            User user = new User(username);
-            if (tracker.AddUser(user))
+            if (tracker.AddUser(username))
             {
                 Console.ForegroundColor = ConsoleColor.Green;
-                PrintLine($"User {user.Username} created");
+                PrintLine($"User {username} created");
             }
             else
             {
@@ -91,11 +88,10 @@
 
             string projectName = AskInput("Give project name: ");
 
-            Project project = new Project(projectId, projectName);
-            if (tracker.AddProject(project))
+            if (tracker.AddProject(projectId, projectName))
             {
                 Console.ForegroundColor = ConsoleColor.Green;
-                PrintLine($"Project {project.Name} created");
+                PrintLine($"Project {projectName} created");
                 return true;
             }
             else
@@ -109,35 +105,33 @@
         static void ShowWorkingHoursByUser(HourTracker tracker)
         {
             string username = AskInput("Enter username: ");
+            User? selectedUser = tracker.GetUser(username);
 
-            if (!tracker.CheckIfUserExists(username))
+            if (selectedUser == null)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 PrintLine("User not found");
+                return;
             }
-            else
-            {
-                User selectedUser = tracker.GetUser(username);
-                Console.ForegroundColor = ConsoleColor.Green;
-                PrintLine($"Total hours worked by {username}: {tracker.GetTotalHoursByEmployee(selectedUser)}");
-            }
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            PrintLine($"Total hours worked by {username}: {tracker.GetTotalHoursByUser(selectedUser)}");
         }
 
         static void ShowWorkingHoursByProject(HourTracker tracker)
         {
             string id = AskInput("Enter project id: ");
+            Project? selectedProject = tracker.GetProject(id);
 
-            if (!tracker.CheckIfProjectExists(id))
+            if (selectedProject == null)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                PrintLine("User not found");
+                PrintLine("Project not found");
+                return;
             }
-            else
-            {
-                Project selectedProject = tracker.GetProject(id);
-                Console.ForegroundColor = ConsoleColor.Green;
-                PrintLine($"Total hours worked on {selectedProject.Name}: {tracker.GetTotalHoursByProject(selectedProject)}");
-            }
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            PrintLine($"Total hours worked on {selectedProject.Name}: {tracker.GetTotalHoursByProject(selectedProject)}");
         }
 
         static void ShowWorkingHoursByWeek(HourTracker tracker)
@@ -146,6 +140,35 @@
             DateTime endDate = DateTime.Now;
 
             PrintLine($"Total hours worked from {startDate.ToShortDateString()} to {endDate.ToShortDateString()}: {tracker.GetTotalHoursByWeek(startDate, endDate)}");
+        }
+
+        static void ShowUsersAndProjects(HourTracker tracker)
+        {
+            User[] users = tracker.GetUsers();
+            Project[] projects = tracker.GetProjects();
+
+            Console.ForegroundColor = ConsoleColor.Green;
+
+            string listedUsers = "";
+            foreach (var user in users)
+            {
+                listedUsers += $"{user.Username}, ";
+            }
+            listedUsers = listedUsers.TrimEnd(',', ' ');
+
+            string listedProjects = "";
+            foreach (var project in projects)
+            {
+                listedProjects += $"{project.ProjectId} {project.Name}\n";
+            }
+            listedProjects = listedProjects.TrimEnd('\n');
+
+            PrintLine($"Users:");
+            Print(listedUsers);
+
+            PrintLine("\nProjects:");
+            Print(listedProjects);
+            PrintLine("");
         }
 
         static void Main()
@@ -157,25 +180,16 @@
             Console.ForegroundColor = ConsoleColor.Green;
             PrintLine(options);
 
-            bool done = false;
-
-            while (!done)
+            while (true)
             {
 
                 Console.ForegroundColor = ConsoleColor.White;
-                Print("Input options ([7] help): ");
+                Print("Input options ([8] help): ");
                 string? input = Console.ReadLine();
 
                 switch (input)
                 {
                     case "1":
-                        if (tracker.Users.Count <= 0 && tracker.Projects.Count <= 0)
-                        {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            PrintLine("Users or projects not found");
-                            break;
-                        }
-
                         bool success = CreateNewWorkEntry(tracker);
                         if (success)
                         {
@@ -195,7 +209,7 @@
                         CreateNewUser(tracker);
                         break;
                     case "4":
-                        Console.ForegroundColor = ConsoleColor.Green;
+
                         ShowWorkingHoursByUser(tracker);
                         break;
                     case "5":
@@ -205,6 +219,9 @@
                         ShowWorkingHoursByWeek(tracker);
                         break;
                     case "7":
+                        ShowUsersAndProjects(tracker);
+                        break;
+                    case "8":               
                         Console.ForegroundColor = ConsoleColor.Green;
                         PrintLine(options);
                         break;
@@ -241,7 +258,8 @@
 [4] Show working hours by user     
 [5] Show working hours by project      
 [6] Show working hours this week    
-[7] Help    
+[7] Show all users and projects    
+[8] Help    
 [0] Quit                              
 ----------------------------------------
 ";
