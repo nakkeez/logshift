@@ -139,6 +139,7 @@
             DateTime startDate = DateTime.Now.AddDays(-7);
             DateTime endDate = DateTime.Now;
 
+            Console.ForegroundColor = ConsoleColor.Green;
             PrintLine($"Total hours worked from {startDate.ToShortDateString()} to {endDate.ToShortDateString()}: {tracker.GetTotalHoursByWeek(startDate, endDate)}");
         }
 
