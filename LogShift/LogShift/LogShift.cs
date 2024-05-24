@@ -172,6 +172,27 @@
             PrintLine("");
         }
 
+        static void ShowWorkEntriesByProject(HourTracker tracker)
+        {
+            string id = AskInput("Enter project id: ");
+            Project? selectedProject = tracker.GetProject(id);
+
+            if (selectedProject == null)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                PrintLine("Project not found");
+                return;
+            }
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            WorkEntry[] entries = tracker.GetWorkEntriesByProject(id);
+            PrintLine($"Work entries for project {selectedProject.ProjectId} {selectedProject.Name}:");
+            foreach (var entry in entries)
+            {
+                PrintLine($"User: {entry.User.Username}, Date: {entry.Date.ToShortDateString()}, Hours: {entry.HoursWorked}, Description: {entry.Description}");
+            }
+        }
+
         static void Main()
         {
             HourTracker tracker = new HourTracker();
@@ -222,7 +243,10 @@
                     case "7":
                         ShowUsersAndProjects(tracker);
                         break;
-                    case "8":               
+                    case "8":
+                        ShowWorkEntriesByProject(tracker);
+                        break;
+                    case "9":               
                         Console.ForegroundColor = ConsoleColor.Green;
                         PrintLine(options);
                         break;
@@ -259,8 +283,9 @@
 [4] Show working hours by user     
 [5] Show working hours by project      
 [6] Show working hours this week    
-[7] Show all users and projects    
-[8] Help    
+[7] Show all users and projects 
+[8] Show work entries by project  
+[9] Help    
 [0] Quit                              
 ----------------------------------------
 ";

@@ -118,5 +118,16 @@
             }
             return totalHours;
         }
+
+        public WorkEntry[] GetWorkEntriesByProject(string projectId)
+        {
+            var project = GetProject(projectId);
+            if (project == null)
+            {
+                return Array.Empty<WorkEntry>();
+            }
+
+            return [.. _db.WorkEntries.Where(e => e.Project == project)];
+        }
     }
 }
