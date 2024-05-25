@@ -1,4 +1,6 @@
-﻿namespace LogShift
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace LogShift
 {
     internal class HourTracker
     {
@@ -79,42 +81,51 @@
 
         public double GetTotalHoursByUser(User user)
         {
-            var workEntries = from e in _db.WorkEntries
-                              where e.User == user
-                              select e;
+            WorkEntry[]? workEntries = _db.WorkEntries
+                .Where(e => e.User == user)
+                .ToArray();
 
             double totalHours = 0;
-            foreach (WorkEntry entry in workEntries)
+            if (workEntries != null)
             {
-                totalHours += entry.HoursWorked;
+                foreach (WorkEntry entry in workEntries)
+                {
+                    totalHours += entry.HoursWorked;
+                }
             }
             return totalHours;
         }
 
         public double GetTotalHoursByProject(Project project)
         {
-            var workEntries = from e in _db.WorkEntries
-                              where e.Project == project
-                              select e;
+            WorkEntry[]? workEntries = _db.WorkEntries
+                .Where(e => e.Project == project)
+                .ToArray();
 
             double totalHours = 0;
-            foreach (WorkEntry entry in workEntries)
+            if (workEntries != null)
             {
+                foreach (WorkEntry entry in workEntries)
+                {
                     totalHours += entry.HoursWorked;
+                }
             }
             return totalHours;
         }
 
         public double GetTotalHoursByWeek(DateTime startDate, DateTime endDate)
         {
-            var workEntries = from e in _db.WorkEntries
-                              where e.Date >= startDate && e.Date <= endDate
-                              select e;
+            WorkEntry[]? workEntries = _db.WorkEntries
+                .Where(e => e.Date >= startDate && e.Date <= endDate)
+                .ToArray();
 
             double totalHours = 0;
-            foreach (WorkEntry entry in workEntries)
+            if (workEntries != null)
             {
-                totalHours += entry.HoursWorked;
+                foreach (WorkEntry entry in workEntries)
+                {
+                    totalHours += entry.HoursWorked;
+                }
             }
             return totalHours;
         }
@@ -127,7 +138,10 @@
                 return Array.Empty<WorkEntry>();
             }
 
-            return [.. _db.WorkEntries.Where(e => e.Project == project)];
+            return _db.WorkEntries
+                .Include(e => e.User)
+                .Where(e => e.Project == project)
+                .ToArray();
         }
     }
 }
