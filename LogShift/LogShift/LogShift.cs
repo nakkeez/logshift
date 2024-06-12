@@ -1,17 +1,34 @@
 ﻿namespace LogShift
 {
+    /// <summary>
+    /// The main class for the LogShift application, providing a console interface
+    /// for tracking work hours.
+    /// </summary>
     internal class LogShift
     {
+        /// <summary>
+        /// Prints a message to the console without a newline.
+        /// </summary>
+        /// <param name="message">The message to print.</param>
         static void Print(string message)
         {
             Console.Write(message);
         }
 
+        /// <summary>
+        /// Prints a message to the console followed by a newline.
+        /// </summary>
+        /// <param name="message">The message to print.</param>
         static void PrintLine(string message)
         {
             Console.WriteLine(message);
         }
 
+        /// <summary>
+        /// Prompts the user for input with a message and returns the input.
+        /// </summary>
+        /// <param name="message">The message to display as a prompt.</param>
+        /// <returns>The user's input as a string.</returns>
         static string AskInput(string message)
         {
             Print(message);
@@ -24,6 +41,13 @@
             return input;
         }
 
+        /// <summary>
+        /// Guides the user through creating a new work entry.
+        /// Asks user to input username, project id, date, hours worked, and description
+        /// for the new work entry.
+        /// </summary>
+        /// <param name="tracker">The HourTracker instance to use for data operations.</param>
+        /// <returns>True if the work entry was successfully created, false otherwise.</returns>
         static bool CreateNewWorkEntry(HourTracker tracker)
         {
             string username = AskInput("Enter username: ");
@@ -66,6 +90,11 @@
             return true;
         }
 
+        /// <summary>
+        /// Guides the user through creating a new user.
+        /// Asks user to input username for the new user.
+        /// </summary>
+        /// <param name="tracker">The HourTracker instance to use for data operations.</param>
         static void CreateNewUser(HourTracker tracker)
         {
             string username = AskInput("Give username: ");
@@ -82,6 +111,12 @@
             }
         }
 
+        /// <summary>
+        /// Guides the user through creating a new project.
+        /// Asks user to input project id and project name for the new project.
+        /// </summary>
+        /// <param name="tracker">The HourTracker instance to use for data operations.</param>
+        /// <returns>True if the project was successfully created, false otherwise.</returns>
         static bool CreateNewProject(HourTracker tracker)
         {
             string projectId = AskInput("Give project id: ");
@@ -102,6 +137,11 @@
             }
         }
 
+        /// <summary>
+        /// Displays the total working hours by a specific user.
+        /// Asks user to input username for the user to display hours for.
+        /// </summary>
+        /// <param name="tracker">The HourTracker instance to use for data operations.</param>
         static void ShowWorkingHoursByUser(HourTracker tracker)
         {
             string username = AskInput("Enter username: ");
@@ -118,6 +158,11 @@
             PrintLine($"Total hours worked by {username}: {tracker.GetTotalHoursByUser(selectedUser)}");
         }
 
+        /// <summary>
+        /// Displays the total working hours for a specific project.
+        /// Asks user to input project id for the project to display hours for.
+        /// </summary>
+        /// <param name="tracker">The HourTracker instance to use for data operations.</param>
         static void ShowWorkingHoursByProject(HourTracker tracker)
         {
             string id = AskInput("Enter project id: ");
@@ -134,6 +179,10 @@
             PrintLine($"Total hours worked on {selectedProject.Name}: {tracker.GetTotalHoursByProject(selectedProject)}");
         }
 
+        /// <summary>
+        /// Displays the total working hours for the current week.
+        /// </summary>
+        /// <param name="tracker">The HourTracker instance to use for data operations.</param>
         static void ShowWorkingHoursByWeek(HourTracker tracker)
         {
             DateTime startDate = DateTime.Now.AddDays(-7);
@@ -143,6 +192,10 @@
             PrintLine($"Total hours worked from {startDate.ToShortDateString()} to {endDate.ToShortDateString()}: {tracker.GetTotalHoursByWeek(startDate, endDate)}");
         }
 
+        /// <summary>
+        /// Displays a list of all users and projects.
+        /// </summary>
+        /// <param name="tracker">The HourTracker instance to use for data operations.</param>
         static void ShowUsersAndProjects(HourTracker tracker)
         {
             User[] users = tracker.GetUsers();
@@ -172,6 +225,11 @@
             PrintLine("");
         }
 
+        /// <summary>
+        /// Displays all work entries for a specific project.
+        /// Asks user to input project id for the project to display work entries for.
+        /// </summary>
+        /// <param name="tracker">The HourTracker instance to use for data operations.</param>
         static void ShowWorkEntriesByProject(HourTracker tracker)
         {
             string id = AskInput("Enter project id: ");
@@ -193,6 +251,11 @@
             }
         }
 
+        /// <summary>
+        /// The main entry point for the application, providing a command-line interface
+        /// for interacting with the HourTracker.
+        /// Runs in infinite loop until user chooses to quit the application.
+        /// </summary>
         static void Main()
         {
             HourTracker tracker = new HourTracker();
@@ -206,7 +269,7 @@
             {
 
                 Console.ForegroundColor = ConsoleColor.White;
-                Print("Input options ([8] help): ");
+                Print("Input options ([9] help): ");
                 string? input = Console.ReadLine();
 
                 switch (input)
