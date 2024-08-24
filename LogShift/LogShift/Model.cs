@@ -35,8 +35,12 @@ namespace LogShift
         public LogShiftContext()
         {
             var folder = Environment.SpecialFolder.LocalApplicationData;
-            var path = Environment.GetFolderPath(folder);
-            DbPath = Path.Join(path, "logshift.db");
+            var appDataPath = Environment.GetFolderPath(folder);
+            var path = Path.Combine(appDataPath, "LogShift");
+            // Create the directory if it does not exist, do nothing if it does
+            Directory.CreateDirectory(path);
+
+            DbPath = Path.Combine(path, "logshift.db");
         }
 
         /// <summary>
