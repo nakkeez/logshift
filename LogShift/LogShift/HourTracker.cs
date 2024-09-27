@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CsvHelper;
+using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 namespace LogShift
 {
@@ -132,9 +134,7 @@ namespace LogShift
         /// <returns>The total hours worked by the user.</returns>
         public double GetTotalHoursByUser(User user)
         {
-            WorkEntry[]? workEntries = _db.WorkEntries
-                .Where(e => e.User == user)
-                .ToArray();
+            WorkEntry[]? workEntries = [.. _db.WorkEntries.Where(e => e.User == user)];
 
             double totalHours = 0;
             if (workEntries != null)
@@ -154,9 +154,7 @@ namespace LogShift
         /// <returns>The total hours worked on the project.</returns>
         public double GetTotalHoursByProject(Project project)
         {
-            WorkEntry[]? workEntries = _db.WorkEntries
-                .Where(e => e.Project == project)
-                .ToArray();
+            WorkEntry[]? workEntries = [.. _db.WorkEntries.Where(e => e.Project == project)];
 
             double totalHours = 0;
             if (workEntries != null)
@@ -177,9 +175,7 @@ namespace LogShift
         /// <returns>The total hours worked within the specified date range.</returns>
         public double GetTotalHoursByWeek(DateTime startDate, DateTime endDate)
         {
-            WorkEntry[]? workEntries = _db.WorkEntries
-                .Where(e => e.Date >= startDate && e.Date <= endDate)
-                .ToArray();
+            WorkEntry[]? workEntries = [.. _db.WorkEntries.Where(e => e.Date >= startDate && e.Date <= endDate)];
 
             double totalHours = 0;
             if (workEntries != null)
@@ -195,20 +191,51 @@ namespace LogShift
         /// <summary>
         /// Retrieves all work entries for a specific project.
         /// </summary>
-        /// <param name="projectId">The unique identifier of the project.</param>
-        /// <returns>An array of work entries for the specified project.</returns>
-        public WorkEntry[] GetWorkEntriesByProject(string projectId)
+        /// <param name="user">User whose work entries are to be retrieved.</param>
+        /// <returns>An array of work entries for the specified user.</returns>
+        public WorkEntry[] GetWorkEntriesByUser(User user)
         {
-            var project = GetProject(projectId);
-            if (project == null)
-            {
-                return Array.Empty<WorkEntry>();
-            }
+            return [.. _db.WorkEntries
+                .Include(e => e.Project)
+                .Where(e => e.User == user)];
+        }
 
-            return _db.WorkEntries
+        /// <summary>
+        /// Retrieves all work entries for a specific project.
+        /// </summary>
+        /// <param name="project">Project that's work entries are to be retrieved.</param>
+        /// <returns>An array of work entries for the specified project.</returns>
+        public WorkEntry[] GetWorkEntriesByProject(Project project)
+        {
+            return [.. _db.WorkEntries
                 .Include(e => e.User)
-                .Where(e => e.Project == project)
-                .ToArray();
+                .Where(e => e.Project == project)];
+        }
+
+        /// <summary>
+        /// Retrieves the work entries of a specific user and then saves them to a CSV file.
+        /// </summary>
+        /// <param name="user">User whose work entries are to be saved.</param>
+        /// <returns>True if the work entries were saved successfully, false otherwise.</returns>
+        public bool SaveWorkEntriesToCsv(User user)
+        {
+            WorkEntry[]? workEntries = [.. _db.WorkEntries.Where(e => e.User == user)];
+
+            try
+            {
+                var dir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                var filename = "logshift_work_entries.csv";
+                string path = Path.Combine(dir, filename);
+
+                using var writer = new StreamWriter(path);
+                using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
+                csv.WriteRecords(workEntries);
+                return true;
+            }
+            catch (CsvHelperException)
+            {
+                return false;
+            }
         }
     }
 }

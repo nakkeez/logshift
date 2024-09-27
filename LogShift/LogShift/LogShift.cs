@@ -226,6 +226,32 @@
         }
 
         /// <summary>
+        /// Displays all work entries for a specific user.
+        /// Asks user to input username for the user to display work entries for.
+        /// </summary>
+        /// <param name="tracker">The HourTracker instance to use for data operations.</param>
+        static void ShowWorkEntriesByUser(HourTracker tracker)
+        {
+            string username = AskInput("Enter username: ");
+            User? selectedUser = tracker.GetUser(username);
+
+            if (selectedUser == null)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                PrintLine("User not found");
+                return;
+            }
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            WorkEntry[] entries = tracker.GetWorkEntriesByUser(selectedUser);
+            PrintLine($"Work entries for user {selectedUser.Username}:");
+            foreach (var entry in entries)
+            {
+                PrintLine($"Project: {entry.User.Username}, Date: {entry.Date.ToShortDateString()}, Hours: {entry.HoursWorked}, Description: {entry.Description}");
+            }
+        }
+
+        /// <summary>
         /// Displays all work entries for a specific project.
         /// Asks user to input project id for the project to display work entries for.
         /// </summary>
@@ -243,11 +269,41 @@
             }
 
             Console.ForegroundColor = ConsoleColor.Green;
-            WorkEntry[] entries = tracker.GetWorkEntriesByProject(id);
+            WorkEntry[] entries = tracker.GetWorkEntriesByProject(selectedProject);
             PrintLine($"Work entries for project {selectedProject.ProjectId} {selectedProject.Name}:");
             foreach (var entry in entries)
             {
                 PrintLine($"User: {entry.User.Username}, Date: {entry.Date.ToShortDateString()}, Hours: {entry.HoursWorked}, Description: {entry.Description}");
+            }
+        }
+
+        /// <summary>
+        /// Saves all work entries for a specific user to a CSV file.
+        /// Asks user to input user id for the user to save work entries for.
+        /// Shows a message to the user indicating if operation was successful or not.
+        /// </summary>
+        /// <param name="tracker">The HourTracker instance to use for data operations.</param>
+        static void SaveUsersWorkEntriesToCsv(HourTracker tracker)
+        {
+            string username = AskInput("Enter username: ");
+            User? user = tracker.GetUser(username);
+
+            if (user == null)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                PrintLine("User not found");
+                return;
+            }
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            bool success = tracker.SaveWorkEntriesToCsv(user);
+            if (success)
+            {
+                PrintLine("Work entries succesfully saved to CSV. File 'logshift_work_entries.csv' is located in Documents folder.");
+            }
+            else
+            {
+                PrintLine("Failed to save work entries to CSV.");
             }
         }
 
@@ -269,7 +325,7 @@
             {
 
                 Console.ForegroundColor = ConsoleColor.White;
-                Print("Input options ([9] help): ");
+                Print("Input options ([11] help): ");
                 string? input = Console.ReadLine();
 
                 switch (input)
@@ -294,7 +350,6 @@
                         CreateNewUser(tracker);
                         break;
                     case "4":
-
                         ShowWorkingHoursByUser(tracker);
                         break;
                     case "5":
@@ -307,9 +362,15 @@
                         ShowUsersAndProjects(tracker);
                         break;
                     case "8":
+                        ShowWorkEntriesByUser(tracker);
+                        break;
+                    case "9":
                         ShowWorkEntriesByProject(tracker);
                         break;
-                    case "9":               
+                    case "10":
+                        SaveUsersWorkEntriesToCsv(tracker);
+                        break;
+                    case "11":               
                         Console.ForegroundColor = ConsoleColor.Green;
                         PrintLine(options);
                         break;
@@ -325,7 +386,7 @@
             }
         }
 
-        static string banner = @"
+        static readonly string banner = @"
  ___       ________  ________  ________  ___  ___  ___  ________ _________   
 |\  \     |\   __  \|\   ____\|\   ____\|\  \|\  \|\  \|\  _____\\___   ___\ 
 \ \  \    \ \  \|\  \ \  \___|\ \  \___|\ \  \\\  \ \  \ \  \__/\|___ \  \_| 
@@ -338,7 +399,7 @@
                                                                              
 ";
 
-        static string options = @"
+        static readonly string options = @"
 ----------------------------------------
 [1] Add new work entry  
 [2] Create new project      
@@ -346,9 +407,11 @@
 [4] Show working hours by user     
 [5] Show working hours by project      
 [6] Show working hours this week    
-[7] Show all users and projects 
-[8] Show work entries by project  
-[9] Help    
+[7] Show all users and projects    
+[8] Show work entries by user   
+[9] Show work entries by project    
+[10] Save work entries by user to CSV    
+[11] Help    
 [0] Quit                              
 ----------------------------------------
 ";
