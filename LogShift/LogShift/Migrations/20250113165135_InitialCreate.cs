@@ -15,12 +15,12 @@ namespace LogShift.Migrations
                 name: "Projects",
                 columns: table => new
                 {
-                    ProjectId = table.Column<string>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false)
+                    Id = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Projects", x => x.ProjectId);
+                    table.PrimaryKey("PK_Projects", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -29,7 +29,7 @@ namespace LogShift.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Username = table.Column<string>(type: "TEXT", nullable: false)
+                    Username = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -46,7 +46,7 @@ namespace LogShift.Migrations
                     Date = table.Column<DateTime>(type: "TEXT", nullable: false),
                     ProjectId = table.Column<string>(type: "TEXT", nullable: false),
                     HoursWorked = table.Column<double>(type: "REAL", nullable: false),
-                    Description = table.Column<string>(type: "TEXT", nullable: false)
+                    Description = table.Column<string>(type: "TEXT", maxLength: 250, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -55,7 +55,7 @@ namespace LogShift.Migrations
                         name: "FK_WorkEntries_Projects_ProjectId",
                         column: x => x.ProjectId,
                         principalTable: "Projects",
-                        principalColumn: "ProjectId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_WorkEntries_Users_UserId",

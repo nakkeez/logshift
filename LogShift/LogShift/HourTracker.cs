@@ -41,15 +41,14 @@ namespace LogShift
         }
 
         /// <summary>
-        /// Retrieves an user from the database by username.
+        /// Retrieves a user from the database by username.
         /// </summary>
         /// <param name="username">The username of the user to retrieve.</param>
         /// <returns>The user object if found, null otherwise.</returns>
         public User? GetUser(string username)
         {
-            User? user = _db.Users
-                    .Where(u => u.Username == username)
-                    .FirstOrDefault();
+            var user = _db.Users
+                .FirstOrDefault(u => u.Username == username);
             return user;
         }
 
@@ -65,7 +64,7 @@ namespace LogShift
         /// <summary>
         /// Adds a new project to the database.
         /// </summary>
-        /// <param name="projectId">The unique identifier for the project.</param>
+        /// <param name="projectId">The unique identifier of the project.</param>
         /// <param name="projectName">The name of the project.</param>
         /// <returns>True if the project was added successfully, false otherwise.</returns>
         public bool AddProject(string projectId, string projectName)
@@ -89,9 +88,8 @@ namespace LogShift
         /// <returns>The project object if found, null otherwise.</returns>
         public Project? GetProject(string projectId)
         {
-            Project? project = _db.Projects
-                    .Where(p => p.ProjectId == projectId)
-                    .FirstOrDefault();
+            var project = _db.Projects
+                .FirstOrDefault(p => p.Id == projectId);
             return project;
         }
 
@@ -117,7 +115,10 @@ namespace LogShift
         {
             try
             {
-                _db.Add(new WorkEntry() { User=user, Date=date, Project=project, HoursWorked=hoursWorked, Description=description});
+                _db.Add(new WorkEntry()
+                {
+                    User = user, Date = date, Project = project, HoursWorked = hoursWorked, Description = description
+                });
                 _db.SaveChanges();
                 return true;
             }
@@ -134,17 +135,8 @@ namespace LogShift
         /// <returns>The total hours worked by the user.</returns>
         public double GetTotalHoursByUser(User user)
         {
-            WorkEntry[]? workEntries = [.. _db.WorkEntries.Where(e => e.User == user)];
-
-            double totalHours = 0;
-            if (workEntries != null)
-            {
-                foreach (WorkEntry entry in workEntries)
-                {
-                    totalHours += entry.HoursWorked;
-                }
-            }
-            return totalHours;
+            WorkEntry[] workEntries = [.. _db.WorkEntries.Where(e => e.User == user)];
+            return workEntries.Sum(entry => entry.HoursWorked);
         }
 
         /// <summary>
@@ -154,17 +146,8 @@ namespace LogShift
         /// <returns>The total hours worked on the project.</returns>
         public double GetTotalHoursByProject(Project project)
         {
-            WorkEntry[]? workEntries = [.. _db.WorkEntries.Where(e => e.Project == project)];
-
-            double totalHours = 0;
-            if (workEntries != null)
-            {
-                foreach (WorkEntry entry in workEntries)
-                {
-                    totalHours += entry.HoursWorked;
-                }
-            }
-            return totalHours;
+            WorkEntry[] workEntries = [.. _db.WorkEntries.Where(e => e.Project == project)];
+            return workEntries.Sum(entry => entry.HoursWorked);
         }
 
         /// <summary>
@@ -175,17 +158,8 @@ namespace LogShift
         /// <returns>The total hours worked within the specified date range.</returns>
         public double GetTotalHoursByWeek(DateTime startDate, DateTime endDate)
         {
-            WorkEntry[]? workEntries = [.. _db.WorkEntries.Where(e => e.Date >= startDate && e.Date <= endDate)];
-
-            double totalHours = 0;
-            if (workEntries != null)
-            {
-                foreach (WorkEntry entry in workEntries)
-                {
-                    totalHours += entry.HoursWorked;
-                }
-            }
-            return totalHours;
+            WorkEntry[] workEntries = [.. _db.WorkEntries.Where(e => e.Date >= startDate && e.Date <= endDate)];
+            return workEntries.Sum(entry => entry.HoursWorked);
         }
 
         /// <summary>
@@ -195,9 +169,12 @@ namespace LogShift
         /// <returns>An array of work entries for the specified user.</returns>
         public WorkEntry[] GetWorkEntriesByUser(User user)
         {
-            return [.. _db.WorkEntries
-                .Include(e => e.Project)
-                .Where(e => e.User == user)];
+            return
+            [
+                .. _db.WorkEntries
+                    .Include(e => e.Project)
+                    .Where(e => e.User == user)
+            ];
         }
 
         /// <summary>
@@ -207,9 +184,12 @@ namespace LogShift
         /// <returns>An array of work entries for the specified project.</returns>
         public WorkEntry[] GetWorkEntriesByProject(Project project)
         {
-            return [.. _db.WorkEntries
-                .Include(e => e.User)
-                .Where(e => e.Project == project)];
+            return
+            [
+                .. _db.WorkEntries
+                    .Include(e => e.User)
+                    .Where(e => e.Project == project)
+            ];
         }
 
         /// <summary>
@@ -219,13 +199,13 @@ namespace LogShift
         /// <returns>True if the work entries were saved successfully, false otherwise.</returns>
         public bool SaveWorkEntriesToCsv(User user)
         {
-            WorkEntry[]? workEntries = [.. _db.WorkEntries.Where(e => e.User == user)];
+            WorkEntry[] workEntries = [.. _db.WorkEntries.Where(e => e.User == user)];
 
             try
             {
                 var dir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                var filename = "logshift_work_entries.csv";
-                string path = Path.Combine(dir, filename);
+                const string filename = "logshift_work_entries.csv";
+                var path = Path.Combine(dir, filename);
 
                 using var writer = new StreamWriter(path);
                 using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);

@@ -1,19 +1,17 @@
-﻿namespace LogShift
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace LogShift
 {
     /// <summary>
     /// Represents a single project record.
     /// This class holds information about project's name.
     /// </summary>
-    internal class Project(string projectId, string name)
+    internal class Project(string id, string name)
     {
-        /// <summary>
-        /// Gets or sets the unique identifier for the project.
-        /// </summary>
-        public string ProjectId { get; set; } = projectId;
-
-        /// <summary>
-        /// Gets or sets the name for the project.
-        /// </summary>
+        [MaxLength(20)]
+        public string Id { get; init; } = id;
+        
+        [MaxLength(50)]
         public string Name { get; set; } = name;
     }
 }

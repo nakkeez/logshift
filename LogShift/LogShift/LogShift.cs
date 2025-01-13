@@ -10,7 +10,7 @@
         /// Prints a message to the console without a newline.
         /// </summary>
         /// <param name="message">The message to print.</param>
-        static void Print(string message)
+        private static void Print(string message)
         {
             Console.Write(message);
         }
@@ -19,7 +19,7 @@
         /// Prints a message to the console followed by a newline.
         /// </summary>
         /// <param name="message">The message to print.</param>
-        static void PrintLine(string message)
+        private static void PrintLine(string message)
         {
             Console.WriteLine(message);
         }
@@ -29,7 +29,7 @@
         /// </summary>
         /// <param name="message">The message to display as a prompt.</param>
         /// <returns>The user's input as a string.</returns>
-        static string AskInput(string message)
+        private static string AskInput(string message)
         {
             Print(message);
             string? input = Console.ReadLine();
@@ -48,10 +48,10 @@
         /// </summary>
         /// <param name="tracker">The HourTracker instance to use for data operations.</param>
         /// <returns>True if the work entry was successfully created, false otherwise.</returns>
-        static bool CreateNewWorkEntry(HourTracker tracker)
+        private static bool CreateNewWorkEntry(HourTracker tracker)
         {
-            string username = AskInput("Enter username: ");
-            User? selectedUser = tracker.GetUser(username);
+            var username = AskInput("Enter username: ");
+            var selectedUser = tracker.GetUser(username);
             if (selectedUser == null)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -59,8 +59,8 @@
                 return false;
             }
 
-            string id = AskInput("Enter project id: ");
-            Project? selectedProject = tracker.GetProject(id);
+            var id = AskInput("Enter project id: ");
+            var selectedProject = tracker.GetProject(id);
             if (selectedProject == null)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -95,9 +95,9 @@
         /// Asks user to input username for the new user.
         /// </summary>
         /// <param name="tracker">The HourTracker instance to use for data operations.</param>
-        static void CreateNewUser(HourTracker tracker)
+        private static void CreateNewUser(HourTracker tracker)
         {
-            string username = AskInput("Give username: ");
+            var username = AskInput("Give username: ");
 
             if (tracker.AddUser(username))
             {
@@ -113,27 +113,24 @@
 
         /// <summary>
         /// Guides the user through creating a new project.
-        /// Asks user to input project id and project name for the new project.
+        /// Asks user to input id and name for the new project.
         /// </summary>
         /// <param name="tracker">The HourTracker instance to use for data operations.</param>
-        /// <returns>True if the project was successfully created, false otherwise.</returns>
-        static bool CreateNewProject(HourTracker tracker)
+        private static void CreateNewProject(HourTracker tracker)
         {
-            string projectId = AskInput("Give project id: ");
+            var projectId = AskInput("Give project id: ");
 
-            string projectName = AskInput("Give project name: ");
+            var projectName = AskInput("Give project name: ");
 
             if (tracker.AddProject(projectId, projectName))
             {
                 Console.ForegroundColor = ConsoleColor.Green;
                 PrintLine($"Project {projectName} created");
-                return true;
             }
             else
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 PrintLine($"Failed to create project {projectName} with id {projectId}");
-                return false;
             }
         }
 
@@ -142,10 +139,10 @@
         /// Asks user to input username for the user to display hours for.
         /// </summary>
         /// <param name="tracker">The HourTracker instance to use for data operations.</param>
-        static void ShowWorkingHoursByUser(HourTracker tracker)
+        private static void ShowWorkingHoursByUser(HourTracker tracker)
         {
-            string username = AskInput("Enter username: ");
-            User? selectedUser = tracker.GetUser(username);
+            var username = AskInput("Enter username: ");
+            var selectedUser = tracker.GetUser(username);
 
             if (selectedUser == null)
             {
@@ -160,13 +157,13 @@
 
         /// <summary>
         /// Displays the total working hours for a specific project.
-        /// Asks user to input project id for the project to display hours for.
+        /// Asks user to input id for the project to display hours for.
         /// </summary>
         /// <param name="tracker">The HourTracker instance to use for data operations.</param>
-        static void ShowWorkingHoursByProject(HourTracker tracker)
+        private static void ShowWorkingHoursByProject(HourTracker tracker)
         {
-            string id = AskInput("Enter project id: ");
-            Project? selectedProject = tracker.GetProject(id);
+            var id = AskInput("Enter project id: ");
+            var selectedProject = tracker.GetProject(id);
 
             if (selectedProject == null)
             {
@@ -183,10 +180,10 @@
         /// Displays the total working hours for the current week.
         /// </summary>
         /// <param name="tracker">The HourTracker instance to use for data operations.</param>
-        static void ShowWorkingHoursByWeek(HourTracker tracker)
+        private static void ShowWorkingHoursByWeek(HourTracker tracker)
         {
-            DateTime startDate = DateTime.Now.AddDays(-7);
-            DateTime endDate = DateTime.Now;
+            var startDate = DateTime.Now.AddDays(-7);
+            var endDate = DateTime.Now;
 
             Console.ForegroundColor = ConsoleColor.Green;
             PrintLine($"Total hours worked from {startDate.ToShortDateString()} to {endDate.ToShortDateString()}: {tracker.GetTotalHoursByWeek(startDate, endDate)}");
@@ -196,25 +193,17 @@
         /// Displays a list of all users and projects.
         /// </summary>
         /// <param name="tracker">The HourTracker instance to use for data operations.</param>
-        static void ShowUsersAndProjects(HourTracker tracker)
+        private static void ShowUsersAndProjects(HourTracker tracker)
         {
-            User[] users = tracker.GetUsers();
-            Project[] projects = tracker.GetProjects();
+            var users = tracker.GetUsers();
+            var projects = tracker.GetProjects();
 
             Console.ForegroundColor = ConsoleColor.Green;
 
-            string listedUsers = "";
-            foreach (var user in users)
-            {
-                listedUsers += $"{user.Username}, ";
-            }
+            var listedUsers = users.Aggregate("", (current, user) => current + $"{user.Username}, ");
             listedUsers = listedUsers.TrimEnd(',', ' ');
 
-            string listedProjects = "";
-            foreach (var project in projects)
-            {
-                listedProjects += $"{project.ProjectId} {project.Name}\n";
-            }
+            var listedProjects = projects.Aggregate("", (current, project) => current + $"{project.Id} {project.Name}\n");
             listedProjects = listedProjects.TrimEnd('\n');
 
             PrintLine($"Users:");
@@ -230,10 +219,10 @@
         /// Asks user to input username for the user to display work entries for.
         /// </summary>
         /// <param name="tracker">The HourTracker instance to use for data operations.</param>
-        static void ShowWorkEntriesByUser(HourTracker tracker)
+        private static void ShowWorkEntriesByUser(HourTracker tracker)
         {
-            string username = AskInput("Enter username: ");
-            User? selectedUser = tracker.GetUser(username);
+            var username = AskInput("Enter username: ");
+            var selectedUser = tracker.GetUser(username);
 
             if (selectedUser == null)
             {
@@ -243,7 +232,7 @@
             }
 
             Console.ForegroundColor = ConsoleColor.Green;
-            WorkEntry[] entries = tracker.GetWorkEntriesByUser(selectedUser);
+            var entries = tracker.GetWorkEntriesByUser(selectedUser);
             PrintLine($"Work entries for user {selectedUser.Username}:");
             foreach (var entry in entries)
             {
@@ -253,13 +242,13 @@
 
         /// <summary>
         /// Displays all work entries for a specific project.
-        /// Asks user to input project id for the project to display work entries for.
+        /// Asks user to input id for the project to display work entries for.
         /// </summary>
         /// <param name="tracker">The HourTracker instance to use for data operations.</param>
-        static void ShowWorkEntriesByProject(HourTracker tracker)
+        private static void ShowWorkEntriesByProject(HourTracker tracker)
         {
-            string id = AskInput("Enter project id: ");
-            Project? selectedProject = tracker.GetProject(id);
+            var id = AskInput("Enter project id: ");
+            var selectedProject = tracker.GetProject(id);
 
             if (selectedProject == null)
             {
@@ -269,8 +258,8 @@
             }
 
             Console.ForegroundColor = ConsoleColor.Green;
-            WorkEntry[] entries = tracker.GetWorkEntriesByProject(selectedProject);
-            PrintLine($"Work entries for project {selectedProject.ProjectId} {selectedProject.Name}:");
+            var entries = tracker.GetWorkEntriesByProject(selectedProject);
+            PrintLine($"Work entries for project {selectedProject.Id} {selectedProject.Name}:");
             foreach (var entry in entries)
             {
                 PrintLine($"User: {entry.User.Username}, Date: {entry.Date.ToShortDateString()}, Hours: {entry.HoursWorked}, Description: {entry.Description}");
@@ -279,14 +268,14 @@
 
         /// <summary>
         /// Saves all work entries for a specific user to a CSV file.
-        /// Asks user to input user id for the user to save work entries for.
+        /// Asks user to input id for the user to save work entries for.
         /// Shows a message to the user indicating if operation was successful or not.
         /// </summary>
         /// <param name="tracker">The HourTracker instance to use for data operations.</param>
-        static void SaveUsersWorkEntriesToCsv(HourTracker tracker)
+        private static void SaveUsersWorkEntriesToCsv(HourTracker tracker)
         {
-            string username = AskInput("Enter username: ");
-            User? user = tracker.GetUser(username);
+            var username = AskInput("Enter username: ");
+            var user = tracker.GetUser(username);
 
             if (user == null)
             {
@@ -296,15 +285,10 @@
             }
 
             Console.ForegroundColor = ConsoleColor.Green;
-            bool success = tracker.SaveWorkEntriesToCsv(user);
-            if (success)
-            {
-                PrintLine("Work entries succesfully saved to CSV. File 'logshift_work_entries.csv' is located in Documents folder.");
-            }
-            else
-            {
-                PrintLine("Failed to save work entries to CSV.");
-            }
+            var success = tracker.SaveWorkEntriesToCsv(user);
+            PrintLine(success
+                ? "Work entries successfully saved to CSV. File 'logshift_work_entries.csv' is located in Documents folder."
+                : "Failed to save work entries to CSV.");
         }
 
         /// <summary>
@@ -312,30 +296,30 @@
         /// for interacting with the HourTracker.
         /// Runs in infinite loop until user chooses to quit the application.
         /// </summary>
-        static void Main()
+        private static void Main()
         {
-            HourTracker tracker = new HourTracker();
+            var tracker = new HourTracker();
 
             Console.ForegroundColor = ConsoleColor.Yellow;
-            PrintLine(banner);
+            PrintLine(Banner);
             Console.ForegroundColor = ConsoleColor.Green;
-            PrintLine(options);
+            PrintLine(Options);
 
             while (true)
             {
 
                 Console.ForegroundColor = ConsoleColor.White;
                 Print("Input options ([11] help): ");
-                string? input = Console.ReadLine();
+                var input = Console.ReadLine();
 
                 switch (input)
                 {
                     case "1":
-                        bool success = CreateNewWorkEntry(tracker);
+                        var success = CreateNewWorkEntry(tracker);
                         if (success)
                         {
                             Console.ForegroundColor = ConsoleColor.Green;
-                            PrintLine("New entry succesfully add");
+                            PrintLine("New entry successfully add");
                         }
                         else
                         {
@@ -372,7 +356,7 @@
                         break;
                     case "11":               
                         Console.ForegroundColor = ConsoleColor.Green;
-                        PrintLine(options);
+                        PrintLine(Options);
                         break;
                     case "0":
                         Console.ForegroundColor = ConsoleColor.Green;
@@ -386,34 +370,38 @@
             }
         }
 
-        static readonly string banner = @"
- ___       ________  ________  ________  ___  ___  ___  ________ _________   
-|\  \     |\   __  \|\   ____\|\   ____\|\  \|\  \|\  \|\  _____\\___   ___\ 
-\ \  \    \ \  \|\  \ \  \___|\ \  \___|\ \  \\\  \ \  \ \  \__/\|___ \  \_| 
- \ \  \    \ \  \\\  \ \  \  __\ \_____  \ \   __  \ \  \ \   __\    \ \  \  
-  \ \  \____\ \  \\\  \ \  \|\  \|____|\  \ \  \ \  \ \  \ \  \_|     \ \  \ 
-   \ \_______\ \_______\ \_______\____\_\  \ \__\ \__\ \__\ \__\       \ \__\
-    \|_______|\|_______|\|_______|\_________\|__|\|__|\|__|\|__|        \|__|
-                                 \|_________|                                
-                                                                             
-                                                                             
-";
+        private const string Banner = """
+                                      
+                                       ___       ________  ________  ________  ___  ___  ___  ________ _________   
+                                      |\  \     |\   __  \|\   ____\|\   ____\|\  \|\  \|\  \|\  _____\\___   ___\ 
+                                      \ \  \    \ \  \|\  \ \  \___|\ \  \___|\ \  \\\  \ \  \ \  \__/\|___ \  \_| 
+                                       \ \  \    \ \  \\\  \ \  \  __\ \_____  \ \   __  \ \  \ \   __\    \ \  \  
+                                        \ \  \____\ \  \\\  \ \  \|\  \|____|\  \ \  \ \  \ \  \ \  \_|     \ \  \ 
+                                         \ \_______\ \_______\ \_______\____\_\  \ \__\ \__\ \__\ \__\       \ \__\
+                                          \|_______|\|_______|\|_______|\_________\|__|\|__|\|__|\|__|        \|__|
+                                                                       \|_________|                                
+                                                                                                                   
+                                                                                                                   
+                                      
+                                      """;
 
-        static readonly string options = @"
-----------------------------------------
-[1] Add new work entry  
-[2] Create new project      
-[3] Create new user
-[4] Show working hours by user     
-[5] Show working hours by project      
-[6] Show working hours this week    
-[7] Show all users and projects    
-[8] Show work entries by user   
-[9] Show work entries by project    
-[10] Save work entries by user to CSV    
-[11] Help    
-[0] Quit                              
-----------------------------------------
-";
+        private const string Options = """
+
+                                       ----------------------------------------
+                                       [1] Add new work entry  
+                                       [2] Create new project      
+                                       [3] Create new user
+                                       [4] Show working hours by user     
+                                       [5] Show working hours by project      
+                                       [6] Show working hours this week    
+                                       [7] Show all users and projects    
+                                       [8] Show work entries by user   
+                                       [9] Show work entries by project    
+                                       [10] Save work entries by user to CSV    
+                                       [11] Help    
+                                       [0] Quit                              
+                                       ----------------------------------------
+
+                                       """;
     }
 }

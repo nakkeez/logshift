@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LogShift.Migrations
 {
     [DbContext(typeof(LogShiftContext))]
-    [Migration("20240508122014_InitialCreate")]
+    [Migration("20250113165135_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -22,14 +22,16 @@ namespace LogShift.Migrations
 
             modelBuilder.Entity("LogShift.Project", b =>
                 {
-                    b.Property<string>("ProjectId")
+                    b.Property<string>("Id")
+                        .HasMaxLength(20)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
-                    b.HasKey("ProjectId");
+                    b.HasKey("Id");
 
                     b.HasIndex("Name")
                         .IsUnique();
@@ -45,6 +47,7 @@ namespace LogShift.Migrations
 
                     b.Property<string>("Username")
                         .IsRequired()
+                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -66,6 +69,7 @@ namespace LogShift.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
+                        .HasMaxLength(250)
                         .HasColumnType("TEXT");
 
                     b.Property<double>("HoursWorked")

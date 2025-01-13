@@ -1,4 +1,6 @@
-﻿namespace LogShift
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace LogShift
 {
     /// <summary>
     /// Represents a single work entry record.
@@ -7,10 +9,7 @@
     /// </summary>
     internal class WorkEntry
     {
-        /// <summary>
-        /// Gets or sets the unique identifier for the work entry.
-        /// </summary>
-        public int Id { get; set; }
+        public int Id { get; init; }
 
         /// <summary>
         /// Gets or sets the user who performed the work.
@@ -35,6 +34,7 @@
         /// <summary>
         /// Gets or sets the description of the work performed.
         /// </summary>
+        [MaxLength(250)]
         public required string Description { get; set; }
     }
 }

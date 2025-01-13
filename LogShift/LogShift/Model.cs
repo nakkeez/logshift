@@ -26,7 +26,7 @@ namespace LogShift
         /// <summary>
         /// Gets the path to the database file.
         /// </summary>
-        public string DbPath { get; }
+        private string DbPath { get; }
 
         /// <summary>
         /// Initializes a new instance of the LogShiftContext class, setting up
@@ -34,7 +34,7 @@ namespace LogShift
         /// </summary>
         public LogShiftContext()
         {
-            var folder = Environment.SpecialFolder.LocalApplicationData;
+            const Environment.SpecialFolder folder = Environment.SpecialFolder.LocalApplicationData;
             var appDataPath = Environment.GetFolderPath(folder);
             var path = Path.Combine(appDataPath, "LogShift");
             // Create the directory if it does not exist, do nothing if it does
@@ -53,7 +53,7 @@ namespace LogShift
         }
 
         /// <summary>
-        /// Configures the database to be used for this context.
+        /// Configures the SQLite database to be used for this context.
         /// This method is called for each instance of the context that is created.
         /// </summary>
         protected override void OnConfiguring(DbContextOptionsBuilder options)
