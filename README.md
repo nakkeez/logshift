@@ -4,11 +4,16 @@
 
 # Getting Started
 
-Run the following commands in Package Manager Console:
+Run either one of the following commands to create the SQLite database into user's application data directory.
+
+In the command line:
 
 ```
-Add-Migration InitialCreate
+dotnet ef database update
+```
+
+Or in the Visual Studio's Package Manager Console:
+
+```
 Update-Database
 ```
-
-The Add-Migration command scaffolds a migration that will be used in creating needed tables to the SQLite database. The Update-Database command creates the database and applies the created migrations.
